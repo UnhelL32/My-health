@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Health & Prescription Tracker</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="patient-avatar">SJ</div>
+                <div class="patient-info">
+                    <h2>Sarah Jenkins</h2>
+                    <span>Patient Profile</span>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <button class="nav-item active" data-tab="dashboard">
+                    <i data-lucide="layout-dashboard"></i>
+                    <span>Dashboard</span>
+                </button>
+                <button class="nav-item" data-tab="prescriptions">
+                    <i data-lucide="pill"></i>
+                    <span>Prescriptions</span>
+                </button>
+                <button class="nav-item" data-tab="tests">
+                    <i data-lucide="clipboard-list"></i>
+                    <span>Test Results</span>
+                </button>
+                <button class="nav-item" data-tab="history">
+                    <i data-lucide="history"></i>
+                    <span>Medical History</span>
+                </button>
+                <button class="nav-item" data-tab="doctors">
+                    <i data-lucide="user-cog"></i>
+                    <span>Doctors Directory</span>
+                </button>
+                <button class="nav-item" data-tab="analytics">
+                    <i data-lucide="activity"></i>
+                    <span>Analytics & Charts</span>
+                </button>
+                <button class="nav-item" data-tab="datacenter">
+                    <i data-lucide="database"></i>
+                    <span>Data Center</span>
+                </button>
+            </nav>
+
+
+            <div class="sidebar-footer">
+                <div class="blood-badge">
+                    <i data-lucide="droplet"></i>
+                    <span>Blood Type: <strong>A+</strong></span>
+                </div>
+                <div class="emergency-contact">
+                    <span class="label">Emergency Contact</span>
+                    <span class="value">David Jenkins (Spouse)</span>
+                    <span class="phone">+1 555-0199</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Top Navbar (Mobile responsive header) -->
+            <header class="top-navbar">
+                <button class="mobile-menu-toggle" id="menuToggleBtn">
+                    <i data-lucide="menu"></i>
+                </button>
+                <div class="header-title">
+                    <h1 id="pageTitle">Dashboard</h1>
+                    <p class="current-date" id="currentDateDisplay">Friday, June 26, 2026</p>
+                </div>
+                <div class="quick-profile-card">
+                    <span class="allergy-tag"><i data-lucide="alert-triangle"></i> Sulfa Drug Allergy</span>
+                </div>
+            </header>
+
+            <!-- Scrollable Page Wrapper -->
+            <div class="page-wrapper">
+
+                <!-- 1. DASHBOARD TAB -->
+                <section class="tab-content active" id="tab-dashboard">
+                    <!-- Quick Stats Grid -->
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon purple">
+                                <i data-lucide="pill"></i>
+                            </div>
+                            <div class="stat-details">
+                                <h3 id="statActiveMeds">0</h3>
+                                <p>Active Prescriptions</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon orange">
+                                <i data-lucide="clipboard-list"></i>
+                            </div>
+                            <div class="stat-details">
+                                <h3 id="statPendingTests">0</h3>
+                                <p>Pending Lab Tests</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon blue">
+                                <i data-lucide="heart"></i>
+                            </div>
+                            <div class="stat-details">
+                                <h3 id="statHistoryEntries">0</h3>
+                                <p>Medical Conditions</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon green">
+                                <i data-lucide="users"></i>
+                            </div>
+                            <div class="stat-details">
+                                <h3 id="statDoctorsCount">0</h3>
+                                <p>Caring Doctors</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dashboard Layout Grid -->
+                    <div class="dashboard-grid">
+                        <!-- Daily Med Schedule -->
+                        <div class="dashboard-card schedule-card">
+                            <div class="card-header">
+                                <div>
+                                    <h2>Today's Medication Schedule</h2>
+                                    <p>Track doses for today: <strong id="scheduleDateStr">June 26, 2026</strong></p>
+                                </div>
+                                <i data-lucide="calendar" class="header-icon"></i>
+                            </div>
+                            <div class="card-body">
+                                <div class="date-picker-mini">
+                                    <label for="scheduleDatePicker">Check another date:</label>
+                                    <input type="date" id="scheduleDatePicker" class="custom-date-picker">
+                                </div>
+                                <div id="todayScheduleList" class="schedule-list">
+                                    <!-- Dynamic Schedule Items -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quick Overview of Statuses & Patient File -->
+                        <div class="dashboard-side-grid">
+                            <div class="dashboard-card info-card">
+                                <div class="card-header">
+                                    <h2>Patient Profile</h2>
+                                    <button class="btn btn-icon-text btn-sm" id="editProfileBtn">
+                                        <i data-lucide="edit-3"></i> Edit
+                                    </button>
+                                </div>
+                                <div class="card-body">
+                                    <div class="profile-details-list">
+                                        <div class="detail-item">
+                                            <span class="lbl">Full Name</span>
+                                            <span class="val" id="profileName">Sarah Jenkins</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="lbl">Date of Birth</span>
+                                            <span class="val" id="profileDob">August 20, 1978 (47 Years)</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="lbl">Blood Group</span>
+                                            <span class="val" id="profileBlood">A+</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="lbl">Allergies</span>
+                                            <span class="val text-danger" id="profileAllergies">Sulfa Drugs</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="lbl">Phone Number</span>
+                                            <span class="val" id="profilePhone">+1 555-0144</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="dashboard-card actions-card">
+                                <div class="card-header">
+                                    <h2>Quick Actions</h2>
+                                </div>
+                                <div class="card-body quick-actions-container">
+                                    <button class="btn btn-primary" onclick="openModal('prescriptionModal')">
+                                        <i data-lucide="plus-circle"></i> Add Prescription
+                                    </button>
+                                    <button class="btn btn-secondary" onclick="openModal('testModal')">
+                                        <i data-lucide="file-plus"></i> Add Test Result
+                                    </button>
+                                    <button class="btn btn-info" onclick="openModal('historyModal')">
+                                        <i data-lucide="plus"></i> Add Medical History
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+
+                <!-- 2. PRESCRIPTIONS TAB -->
+                <section class="tab-content" id="tab-prescriptions">
+                    <div class="content-header-actions">
+                        <div class="filter-bar">
+                            <div class="search-input-wrapper">
+                                <i data-lucide="search"></i>
+                                <input type="text" id="rxSearch" placeholder="Search medicines...">
+                            </div>
+                            <select id="rxDoctorFilter" class="custom-select">
+                                <option value="">All Doctors</option>
+                            </select>
+                            <select id="rxStatusFilter" class="custom-select">
+                                <option value="all">All Prescriptions</option>
+                                <option value="active">Active Only</option>
+                                <option value="inactive">Inactive Only</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-primary" onclick="openModal('prescriptionModal')">
+                            <i data-lucide="plus"></i> Add Prescription
+                        </button>
+                    </div>
+
+                    <div class="prescriptions-grid" id="prescriptionsContainer">
+                        <!-- Dynamic Prescription Cards -->
+                    </div>
+                </section>
+
+
+                <!-- 3. TESTS TAB -->
+                <section class="tab-content" id="tab-tests">
+                    <div class="content-header-actions">
+                        <div class="filter-bar">
+                            <div class="search-input-wrapper">
+                                <i data-lucide="search"></i>
+                                <input type="text" id="testSearch" placeholder="Search tests...">
+                            </div>
+                            <select id="testDoctorFilter" class="custom-select">
+                                <option value="">All Doctors</option>
+                            </select>
+                            <select id="testCategoryFilter" class="custom-select">
+                                <option value="">All Categories</option>
+                            </select>
+                            <select id="testStatusFilter" class="custom-select">
+                                <option value="all">All Tests</option>
+                                <option value="completed">Completed</option>
+                                <option value="pending">Pending</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-primary" onclick="openModal('testModal')">
+                            <i data-lucide="plus"></i> Add Test Result
+                        </button>
+                    </div>
+
+                    <div class="tests-grid" id="testsContainer">
+                        <!-- Dynamic Test Cards -->
+                    </div>
+                </section>
+
+
+                <!-- 4. MEDICAL HISTORY TAB -->
+                <section class="tab-content" id="tab-history">
+                    <div class="content-header-actions">
+                        <div class="filter-bar">
+                            <div class="search-input-wrapper">
+                                <i data-lucide="search"></i>
+                                <input type="text" id="historySearch" placeholder="Search history...">
+                            </div>
+                            <select id="historyStatusFilter" class="custom-select">
+                                <option value="all">All Statuses</option>
+                                <option value="active">Ongoing Condition</option>
+                                <option value="resolved">Resolved</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-primary" onclick="openModal('historyModal')">
+                            <i data-lucide="plus"></i> Add History Entry
+                        </button>
+                    </div>
+
+                    <div class="history-timeline-container">
+                        <div class="timeline-line"></div>
+                        <div id="historyContainer" class="history-list">
+                            <!-- Dynamic Timeline Items -->
+                        </div>
+                    </div>
+                </section>
+
+
+                <!-- 5. DOCTORS DIRECTORY TAB -->
+                <section class="tab-content" id="tab-doctors">
+                    <div class="content-header-actions">
+                        <div class="filter-bar">
+                            <div class="search-input-wrapper">
+                                <i data-lucide="search"></i>
+                                <input type="text" id="doctorSearch" placeholder="Search doctors...">
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" onclick="openModal('doctorModal')">
+                            <i data-lucide="plus"></i> Add Doctor
+                        </button>
+                    </div>
+
+                    <div class="doctors-grid" id="doctorsContainer">
+                        <!-- Dynamic Doctor Cards -->
+                    </div>
+                </section>
+
+
+                <!-- 6. ANALYTICS & CHARTS TAB -->
+                <section class="tab-content" id="tab-analytics">
+                    <div class="analytics-layout">
+                        <!-- Line Chart Card (Double Column for detailed tracking) -->
+                        <div class="analytics-card double-width">
+                            <div class="chart-header">
+                                <div>
+                                    <h2>Test Results Over Time</h2>
+                                    <p>Monitor biomarker trends and numeric clinical tests</p>
+                                </div>
+                                <div class="chart-filter">
+                                    <label for="chartTestType">Select Test Metric:</label>
+                                    <select id="chartTestType" class="custom-select select-sm">
+                                        <!-- Will be filled dynamically based on available completed numeric tests -->
+                                        <option value="Fasting Blood Sugar (FBS)">Fasting Blood Sugar (FBS)</option>
+                                        <option value="HbA1c (Glycated Hemoglobin)">HbA1c (Glycated Hemoglobin)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="chart-body">
+                                <canvas id="testTrendsChart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Bar Chart & Pie Chart Row -->
+                        <div class="analytics-card">
+                            <div class="chart-header">
+                                <h2>Prescriptions per Doctor</h2>
+                                <p>Breakdown of active medicines managed by each doctor</p>
+                            </div>
+                            <div class="chart-body small-chart">
+                                <canvas id="rxPerDoctorChart"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="analytics-card">
+                            <div class="chart-header">
+                                <h2>Tests Distribution</h2>
+                                <p>Lab tests categorized by medical specialty/category</p>
+                            </div>
+                            <div class="chart-body small-chart">
+                                <canvas id="testCategoryChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 7. DATA CENTER TAB -->
+                <section class="tab-content" id="tab-datacenter">
+                    <div class="datacenter-layout">
+                        <!-- CSV Import Card -->
+                        <div class="dashboard-card datacenter-card">
+                            <div class="card-header">
+                                <div>
+                                    <h2>Bulk Import Data (CSV)</h2>
+                                    <p>Select the data type and upload a CSV file to add records in bulk</p>
+                                </div>
+                                <i data-lucide="upload-cloud" class="header-icon"></i>
+                            </div>
+                            <div class="card-body">
+                                <div class="import-selector form-group">
+                                    <label for="importDataType">Import Target Data Type</label>
+                                    <select id="importDataType" class="custom-select">
+                                        <option value="doctors">Doctors Directory</option>
+                                        <option value="prescriptions">Medicines (Prescriptions)</option>
+                                        <option value="tests">Lab Test Results</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="csv-upload-zone" id="csvUploadZone" onclick="document.getElementById('csvFileInput').click()">
+                                    <i data-lucide="file-spreadsheet" class="upload-zone-icon" style="width:48px; height:48px; color:var(--primary-hover); margin-bottom:1rem;"></i>
+                                    <p class="upload-zone-text" style="font-weight:600; margin-bottom:0.25rem;">Drag and drop your CSV file here, or click to browse</p>
+                                    <span class="upload-zone-sub" style="font-size:0.8rem; color:var(--text-muted);">Only standard .csv files are supported</span>
+                                    <input type="file" id="csvFileInput" accept=".csv" style="display: none;" onchange="handleCSVFileSelect(this)">
+                                </div>
+                                
+                                <div id="importStatus" class="import-status-box hidden" style="margin-top:1rem; padding:1rem; border-radius:8px; font-size:0.9rem;"></div>
+                                
+                                <div class="template-downloads" style="margin-top:2rem;">
+                                    <h3 style="font-size:1.1rem; color:#fff; margin-bottom:0.5rem;">CSV Templates</h3>
+                                    <p style="font-size:0.9rem; color:var(--text-secondary); margin-bottom:1rem;">Download reference CSV formats to prepare your data correctly:</p>
+                                    <div class="template-buttons" style="display:flex; flex-wrap:wrap; gap:0.75rem;">
+                                        <button class="btn btn-secondary btn-sm" onclick="downloadTemplate('doctors')">
+                                            <i data-lucide="download"></i> Doctors CSV Template
+                                        </button>
+                                        <button class="btn btn-secondary btn-sm" onclick="downloadTemplate('prescriptions')">
+                                            <i data-lucide="download"></i> Prescriptions CSV Template
+                                        </button>
+                                        <button class="btn btn-secondary btn-sm" onclick="downloadTemplate('tests')">
+                                            <i data-lucide="download"></i> Tests CSV Template
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Data Export/Backup Card -->
+                        <div class="dashboard-card datacenter-card">
+                            <div class="card-header">
+                                <div>
+                                    <h2>Backup & Export Data</h2>
+                                    <p>Download your complete health tracker profile as CSV tables</p>
+                                </div>
+                                <i data-lucide="download-cloud" class="header-icon"></i>
+                            </div>
+                            <div class="card-body export-actions-container">
+                                <p style="color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 0.95rem;">
+                                    Save a local backup of your medical data. You can re-import these files anytime using the bulk importer.
+                                </p>
+                                <div class="export-buttons-grid" style="display:grid; grid-template-columns:1fr; gap:0.75rem;">
+                                    <button class="btn btn-info" onclick="exportData('doctors')">
+                                        <i data-lucide="users"></i> Export Doctors
+                                    </button>
+                                    <button class="btn btn-info" onclick="exportData('prescriptions')">
+                                        <i data-lucide="pill"></i> Export Medicines
+                                    </button>
+                                    <button class="btn btn-info" onclick="exportData('tests')">
+                                        <i data-lucide="clipboard-list"></i> Export Tests
+                                    </button>
+                                </div>
+                                
+                                <div style="margin-top: 2rem; border-top: 1px solid var(--panel-border); padding-top: 1.5rem;">
+                                    <h3 style="color: var(--danger-color); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; font-size:1.1rem;">
+                                        <i data-lucide="alert-triangle"></i> Danger Zone
+                                    </h3>
+                                    <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1rem;">
+                                        Resetting data will wipe all custom medicines, test results, and doctors from your local browser database, seeding it back to initial mock records.
+                                    </p>
+                                    <button class="btn btn-danger" onclick="resetDatabaseToDefault()" style="width:100%;">
+                                        <i data-lucide="refresh-cw"></i> Reset Database
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+
+    </div>
+
+    <!-- ================= MODALS & DIALOGS ================= -->
+
+    <!-- Patient Profile Edit Modal -->
+    <div class="modal-backdrop" id="profileModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h2>Edit Patient Profile</h2>
+                <button class="btn-close" onclick="closeModal('profileModal')">&times;</button>
+            </div>
+            <form id="profileForm" onsubmit="saveProfile(event)">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="editName">Patient Name</label>
+                        <input type="text" id="editName" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="editDob">Date of Birth</label>
+                            <input type="date" id="editDob" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editBloodGroup">Blood Group</label>
+                            <select id="editBloodGroup" class="custom-select" required>
+                                <option value="A+">A+</option>
+                                <option value="A-">A-</option>
+                                <option value="B+">B+</option>
+                                <option value="B-">B-</option>
+                                <option value="AB+">AB+</option>
+                                <option value="AB-">AB-</option>
+                                <option value="O+">O+</option>
+                                <option value="O-">O-</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="editPhone">Contact Number</label>
+                        <input type="text" id="editPhone" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editAllergies">Known Allergies</label>
+                        <input type="text" id="editAllergies" placeholder="e.g. Penicillin, Pollen, None">
+                    </div>
+                    <div class="form-group">
+                        <label for="editEmergencyContact">Emergency Contact Details</label>
+                        <input type="text" id="editEmergencyContact" placeholder="Name (Relationship) - Phone number" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-text" onclick="closeModal('profileModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Doctor CRUD Modal -->
+    <div class="modal-backdrop" id="doctorModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h2 id="doctorModalTitle">Add New Doctor</h2>
+                <button class="btn-close" onclick="closeModal('doctorModal')">&times;</button>
+            </div>
+            <form id="doctorForm" onsubmit="saveDoctor(event)">
+                <input type="hidden" id="doctorId">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="docName">Doctor Name *</label>
+                        <input type="text" id="docName" required placeholder="e.g. Dr. Sarah Rahman">
+                    </div>
+                    <div class="form-group">
+                        <label for="docSpecialty">Specialty *</label>
+                        <input type="text" id="docSpecialty" required placeholder="e.g. Cardiologist, Endocrinologist">
+                    </div>
+                    <div class="form-group">
+                        <label for="docHospital">Hospital / Clinic</label>
+                        <input type="text" id="docHospital" placeholder="e.g. Square Hospital">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="docPhone">Phone Number</label>
+                            <input type="tel" id="docPhone" placeholder="e.g. +880 1712-345678">
+                        </div>
+                        <div class="form-group">
+                            <label for="docEmail">Email Address</label>
+                            <input type="email" id="docEmail" placeholder="e.g. email@hospital.com">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-text" onclick="closeModal('doctorModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="doctorSubmitBtn">Save Doctor</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Prescription CRUD Modal -->
+    <div class="modal-backdrop" id="prescriptionModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h2 id="prescriptionModalTitle">Add Prescription</h2>
+                <button class="btn-close" onclick="closeModal('prescriptionModal')">&times;</button>
+            </div>
+            <form id="prescriptionForm" onsubmit="savePrescription(event)">
+                <input type="hidden" id="rxId">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="rxMedicineName">Medicine Name & Strength *</label>
+                        <input type="text" id="rxMedicineName" required placeholder="e.g. Metformin 500mg">
+                    </div>
+                    <div class="form-group">
+                        <label for="rxDoctorId">Prescribed By Doctor *</label>
+                        <select id="rxDoctorId" class="custom-select" required>
+                            <!-- Dynamic Doctor Options -->
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="rxDosage">Dosage *</label>
+                            <input type="text" id="rxDosage" required placeholder="e.g. 1 tablet after breakfast & dinner">
+                        </div>
+                        <div class="form-group">
+                            <label for="rxStartDate">Start Date *</label>
+                            <input type="date" id="rxStartDate" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Dosage Schedule Schedule *</label>
+                        <div class="schedule-type-selector">
+                            <label class="radio-label">
+                                <input type="radio" name="rxScheduleType" value="continuous" checked onclick="toggleScheduleFields('continuous')">
+                                <span>Continuous (Daily)</span>
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="rxScheduleType" value="fixed_period" onclick="toggleScheduleFields('fixed_period')">
+                                <span>Fixed Period</span>
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="rxScheduleType" value="interval" onclick="toggleScheduleFields('interval')">
+                                <span>Interval (Periodic)</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Condition Fields based on Schedule Type -->
+                    <div id="fixedPeriodFields" class="schedule-conditional-fields hidden">
+                        <div class="form-group">
+                            <label for="rxEndDate">End Date *</label>
+                            <input type="date" id="rxEndDate">
+                        </div>
+                    </div>
+
+                    <div id="intervalFields" class="schedule-conditional-fields hidden">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="rxIntervalValue">Every *</label>
+                                <input type="number" id="rxIntervalValue" min="1" placeholder="e.g. 3">
+                            </div>
+                            <div class="form-group">
+                                <label for="rxIntervalUnit">Period Unit *</label>
+                                <select id="rxIntervalUnit" class="custom-select">
+                                    <option value="days">Days</option>
+                                    <option value="weeks">Weeks</option>
+                                    <option value="months">Months</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="rxIntervalEndDate">End Date (Optional)</label>
+                            <input type="date" id="rxIntervalEndDate" placeholder="Leave empty for continuous interval">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="rxInstructions">Special Instructions</label>
+                        <textarea id="rxInstructions" rows="2" placeholder="e.g. Take with warm water, avoid dairy, after meals"></textarea>
+                    </div>
+
+                    <div class="form-group checkbox-group" id="rxActiveGroup">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="rxActive" checked>
+                            <span>Prescription is currently Active</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-text" onclick="closeModal('prescriptionModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="rxSubmitBtn">Save Prescription</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Test CRUD Modal -->
+    <div class="modal-backdrop" id="testModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h2 id="testModalTitle">Add Test Result</h2>
+                <button class="btn-close" onclick="closeModal('testModal')">&times;</button>
+            </div>
+            <form id="testForm" onsubmit="saveTest(event)">
+                <input type="hidden" id="testId">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="testName">Test Name *</label>
+                        <input type="text" id="testName" required placeholder="e.g. Fasting Blood Sugar (FBS)">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="testDoctorId">Prescribed By Doctor *</label>
+                            <select id="testDoctorId" class="custom-select" required>
+                                <!-- Dynamic Doctor Options -->
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="testCategory">Category / Department *</label>
+                            <input type="text" id="testCategory" required placeholder="e.g. Blood, Urine, Cardiology, Imaging">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="testDatePrescribed">Date Prescribed *</label>
+                            <input type="date" id="testDatePrescribed" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="testStatus">Status *</label>
+                            <select id="testStatus" class="custom-select" required onchange="toggleTestResultFields()">
+                                <option value="pending">Pending</option>
+                                <option value="completed">Completed (Done)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Completed Test Result conditional fields -->
+                    <div id="testResultFields" class="test-conditional-fields hidden">
+                        <div class="form-group">
+                            <label for="testDatePerformed">Date Performed *</label>
+                            <input type="date" id="testDatePerformed">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="testValue">Result Value *</label>
+                                <input type="text" id="testValue" placeholder="e.g. 6.2">
+                            </div>
+                            <div class="form-group">
+                                <label for="testUnit">Unit *</label>
+                                <input type="text" id="testUnit" placeholder="e.g. mmol/L, mg/dL, %">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="testRefRange">Reference Range (Normal Range)</label>
+                            <input type="text" id="testRefRange" placeholder="e.g. 4.0 - 5.6 mmol/L">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="testReportFile">Upload Test Report File (Image or PDF - Max 1.5MB)</label>
+                        <div class="file-upload-wrapper" style="display:flex; align-items:center; gap:0.75rem; margin-top:0.25rem;">
+                            <input type="file" id="testReportFile" accept="image/*,application/pdf" style="display: none;" onchange="handleTestFileSelect(this)">
+                            <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('testReportFile').click()" style="padding: 0.5rem 1rem;">
+                                <i data-lucide="paperclip"></i> Select File
+                            </button>
+                            <span id="testReportFileName" class="file-name-display text-muted" style="font-size:0.9rem; max-width:250px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">No file selected</span>
+                            <button type="button" id="clearTestFileBtn" class="btn btn-text btn-sm hidden" onclick="clearTestFileSelection()" style="color: var(--danger-color); padding: 0; display:flex; align-items:center; gap:0.25rem;">
+                                <i data-lucide="x"></i> Clear
+                            </button>
+                        </div>
+                        <input type="hidden" id="testAttachmentDataUrl">
+                        <input type="hidden" id="testAttachmentName">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="testNotes">Notes / Remarks</label>
+                        <textarea id="testNotes" rows="2" placeholder="e.g. Patient was fasting for 10 hours. Slightly high."></textarea>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-text" onclick="closeModal('testModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="testSubmitBtn">Save Test Result</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Medical History CRUD Modal -->
+    <div class="modal-backdrop" id="historyModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h2 id="historyModalTitle">Add History Entry</h2>
+                <button class="btn-close" onclick="closeModal('historyModal')">&times;</button>
+            </div>
+            <form id="historyForm" onsubmit="saveHistory(event)">
+                <input type="hidden" id="historyId">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="histCondition">Medical Condition / Surgery / Event *</label>
+                        <input type="text" id="histCondition" required placeholder="e.g. Type 2 Diabetes, Appendectomy">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="histDate">Date Diagnosed / Performed *</label>
+                            <input type="date" id="histDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="histStatus">Current Status *</label>
+                            <select id="histStatus" class="custom-select" required>
+                                <option value="active">Active (Ongoing Treatment)</option>
+                                <option value="resolved">Resolved (Completed/Past Event)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="histDoctorId">Associated Doctor / Specialist</label>
+                        <select id="histDoctorId" class="custom-select">
+                            <!-- Dynamic Doctor Options -->
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="histNotes">Notes & Details</label>
+                        <textarea id="histNotes" rows="3" placeholder="Symptoms, treatment protocols, surgical details..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-text" onclick="closeModal('historyModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="historySubmitBtn">Save Entry</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    </div>
+
+    <!-- Attachment Preview Lightbox Modal -->
+    <div class="modal-backdrop" id="attachmentPreviewModal">
+        <div class="modal-card lightbox-card" style="max-width: 800px; width: 90%;">
+            <div class="modal-header">
+                <h2 id="attachmentPreviewTitle">Test Report Attachment</h2>
+                <button class="btn-close" onclick="closeModal('attachmentPreviewModal')">&times;</button>
+            </div>
+            <div class="modal-body lightbox-body" style="display: flex; justify-content: center; align-items: center; min-height: 300px; max-height: 70vh; overflow-y: auto; background: rgba(0,0,0,0.2); border-radius: 8px; padding: 1rem;">
+                <div id="attachmentPreviewContainer" style="width: 100%; height: 100%; display: flex; justify-content: center; align-items: center;">
+                    <!-- Loaded dynamically: image or PDF viewer -->
+                </div>
+            </div>
+            <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                <a id="downloadAttachmentBtn" href="#" class="btn btn-primary" download style="display: flex; align-items: center; gap: 0.5rem;">
+                    <i data-lucide="download"></i> Download File
+                </a>
+                <button type="button" class="btn btn-text" onclick="closeModal('attachmentPreviewModal')">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application Script -->
+    <script src="mock-data.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
+
